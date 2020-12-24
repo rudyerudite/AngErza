@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from pwn import *
 import claripy
 import angr
@@ -19,15 +21,14 @@ def findmitigation():
 		print("PIE is enabled")
 	'''
 	properties['aslr'] = binary.aslr
-    properties['arch'] = binary.arch
-    properties['canary'] = binary.canary
-    properties['got'] = binary.got
-    properties['nx'] = binary.nx
-    properties['pie'] = binary.pie
-    properties['plt'] = binary.plt
-    properties['relro'] = binary.relro
-
-    return properties
+	properties['arch'] = binary.arch
+	properties['canary'] = binary.canary
+	properties['got'] = binary.got
+	properties['nx'] = binary.nx
+	properties['pie'] = binary.pie
+	properties['plt'] = binary.plt
+	properties['relro'] = binary.relro
+	return properties
 
 
 
