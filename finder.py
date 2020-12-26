@@ -8,8 +8,6 @@ proj = angr.Project("bug",auto_load_libs=False)
 binary = ELF("bug")
 
 properties = {}
-gets = proj.loader.find_symbol('gets')
-print(gets)
 
 def findmitigation():
 	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
@@ -29,6 +27,15 @@ def findmitigation():
 	properties['plt'] = binary.plt
 	properties['relro'] = binary.relro
 	return properties
+
+def findfunctions():
+	id_ = proj.analyses.Identifier()
+
+	for fninfo in id_.func_info:
+		print(hex(fninfo.addr), fninfo.name)
+
+findfunctions()
+
 
 
 
