@@ -4,10 +4,14 @@ from pwn import *
 import claripy
 import angr
 
-proj = angr.Project("bug",auto_load_libs=False)
+proj = angr.Project("./bug",auto_load_libs=False)
+state = proj.factory.entry_state(stdin=angr.SimFile)
 binary = ELF("bug")
-
+function = {}
 properties = {}
+unconstrained_input = False
+simgr = proj.factory.simulation_manager(state,save_unconstrained=True)
+simgr.stashes['bof'] = []
 
 def findmitigation():
 	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
@@ -29,12 +33,41 @@ def findmitigation():
 	return properties
 
 def findfunctions():
+# reference: https://docs.angr.io/built-in-analyses/identifier
+# functionality to find the different libc functions in the code
 	id_ = proj.analyses.Identifier()
-
 	for fninfo in id_.func_info:
 		print(hex(fninfo.addr), fninfo.name)
+		function[fninfo.name] = fninfo.addr
 
+def find_bof(simgr):
+# reference to the snippet idea: https://breaking-bits.gitbook.io/breaking-bits/vulnerability-discovery/automated-exploit-development/buffer-overflows
+	if len(simgr.unconstrained):
+	# finding unconstrained path to overwrite the return address with "CCCC"*2
+		for path in simgr.unconstrained:
+			if path.satisfiable(extra_constraints=[path.regs.pc == b"CCCC"*2]):
+				path.add_constraints(path.regs.pc == b"CCCC"*2)
+				if path.satisfiable():
+					simgr.stashes['bof'].append(path)
+				simgr.stashes['unconstrained'].remove(path)
+				simgr.drop(stash='active')
+	return simgr
+
+def prog_state(state):
+# additional condition for gets as it is undetected in the search for unconstrained path
+	if("gets" in function):
+		unconstrained_input = True
+		 # do something to reach till the input function and check for buffer size
+		 # buffer_input_size > buffer_declared_size
+	else:
+		simgr.explore(step_func = find_bof)
+		if (simgr.stashes['bof'] != []):
+			print(simgr.stashes['bof'])
+			unconstrained_input = True
 findfunctions()
+prog_state(state)
+
+
 
 
 
