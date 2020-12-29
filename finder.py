@@ -10,8 +10,10 @@ binary = ELF("bug")
 function = {}
 properties = {}
 unconstrained_input = False
+len_unconstrained_input = -1
 simgr = proj.factory.simulation_manager(state,save_unconstrained=True)
 simgr.stashes['bof'] = []
+crashing_input = ""
 
 def findmitigation():
 	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
@@ -41,6 +43,7 @@ def findfunctions():
 		function[fninfo.name] = fninfo.addr
 
 def find_bof(simgr):
+	global crashing_input
 # reference to the snippet idea: https://breaking-bits.gitbook.io/breaking-bits/vulnerability-discovery/automated-exploit-development/buffer-overflows
 	if len(simgr.unconstrained):
 	# finding unconstrained path to overwrite the return address with "CCCC"*2
@@ -49,9 +52,12 @@ def find_bof(simgr):
 				path.add_constraints(path.regs.pc == b"CCCC"*2)
 				if path.satisfiable():
 					simgr.stashes['bof'].append(path)
+					unconstrained_state = path
+					crashing_input = unconstrained_state.posix.dumps(0)
+					
 				simgr.stashes['unconstrained'].remove(path)
 				simgr.drop(stash='active')
-	return simgr
+	return simgr	
 
 def prog_state(state):
 # additional condition for gets as it is undetected in the search for unconstrained path
@@ -61,9 +67,19 @@ def prog_state(state):
 		 # buffer_input_size > buffer_declared_size
 	else:
 		simgr.explore(step_func = find_bof)
-		if (simgr.stashes['bof'] != []):
-			print(simgr.stashes['bof'])
-			unconstrained_input = True
+		if(simgr.stashes['bof'] != []):
+			print("[+] overflow detected")
+			print("[+] len of crashing input {}".format(len(crashing_input)))
+
+			if(binary.canary == False):
+				print("[+] no canary detected")
+			else:
+				print("[+] canary detected")
+		else:
+			print("[+] no overflow detected")
+
+
+		
 findfunctions()
 prog_state(state)
 
