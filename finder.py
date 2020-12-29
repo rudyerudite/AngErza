@@ -44,19 +44,19 @@ def findfunctions():
 
 def find_bof(simgr):
 	global crashing_input
-# reference to the snippet idea: https://breaking-bits.gitbook.io/breaking-bits/vulnerability-discovery/automated-exploit-development/buffer-overflows
+	# working of simgr and stashes: https://github.com/angr/angr-doc/blob/master/docs/pathgroups.md
 	if len(simgr.unconstrained):
 	# finding unconstrained path to overwrite the return address with "CCCC"*2
 		for path in simgr.unconstrained:
-			if path.satisfiable(extra_constraints=[path.regs.pc == b"CCCC"*2]):
-				path.add_constraints(path.regs.pc == b"CCCC"*2)
-				if path.satisfiable():
-					simgr.stashes['bof'].append(path)
-					unconstrained_state = path
-					crashing_input = unconstrained_state.posix.dumps(0)
+			#if path.satisfiable(extra_constraints=[path.regs.pc == b"CCCC"*2]):
+			path.add_constraints(path.regs.pc == b"CCCC"*2)
+			if path.satisfiable():
+				simgr.stashes['bof'].append(path)
+				unconstrained_state = path
+				crashing_input = unconstrained_state.posix.dumps(0)
 					
-				simgr.stashes['unconstrained'].remove(path)
-				simgr.drop(stash='active')
+			simgr.stashes['unconstrained'].remove(path)
+			simgr.drop(stash='active')
 	return simgr	
 
 def prog_state(state):
