@@ -18,7 +18,9 @@ win_addr = 0
 
 def findmitigation():
 	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
-	# other trials
+	# other trials. 
+	# not sure if the function is really required because any value can be accessed using binary.smth
+	# might be required when splitting the code into multiple python files
 	'''
 	if(proj.loader.main_object.execstack== True):
 		print("NX is enabled")
@@ -38,30 +40,35 @@ def findmitigation():
 def findfunctions():
 # reference: https://docs.angr.io/built-in-analyses/identifier
 # functionality to find the different libc functions in the code
+	findmitigation()
 	id_ = proj.analyses.Identifier()
 	for fninfo in id_.func_info:
 		print(hex(fninfo.addr), fninfo.name)
 		function[fninfo.name] = fninfo.addr
-	find_win()
 
-def find_win():
+	
+def find_win(simgr):
 	global win_addr
+	# finding win functions in the binary and trying to call it
+	# incomplete and failed implementation of the above
 	if ("system" in function):
 		win_addr = function["system"]
+		simgr.explore(find = win_addr)
+		if simgr.found:
+			sol = simgr.found[0]
+			print(sol.posix.dumps(0))
+		return 1
+	return 0
 	
+
 def find_bof(simgr):
 	global crashing_input
-	global win_addr
 	# working of simgr and stashes: https://github.com/angr/angr-doc/blob/master/docs/pathgroups.md
 	if len(simgr.unconstrained):
 	# finding unconstrained path to overwrite the return address with "CCCC"*2
 		for path in simgr.unconstrained:
 			#if path.satisfiable(extra_constraints=[path.regs.pc == b"CCCC"*2]): 
-			addr = p64(win_addr)
-			if(not addr):
-				addr = b"CCCC"*2
-			print(addr)
-			path.add_constraints(path.regs.pc == addr)
+			path.add_constraints(path.regs.pc == p64(0xcafebabe))
 			if path.satisfiable():
 				# input_data = state.posix.stdin.load(0, state.posix.stdin.size) <-- to create a bitvector of the input size
 				simgr.stashes['bof'].append(path)
@@ -93,8 +100,8 @@ def prog_state(state):
 
 
 findfunctions()
-	
-prog_state(state)
+if(not find_win(simgr)):
+	prog_state(state)
 
 
 

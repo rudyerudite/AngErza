@@ -8,12 +8,11 @@ void win()
 }
 int main()
 {
+	
 	char buffer[10];
-	int cntr;
-	scanf("%d", &cntr);
-	if(cntr==1)
+	char cntr[8]="";
 		read(0,buffer,256);
-	else
-		read(0,buffer,8);
+	if(cntr== "appples")
+		win();
 	return 0; 
 }
