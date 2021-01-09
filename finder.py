@@ -68,7 +68,7 @@ def find_bof(simgr):
 	# finding unconstrained path to overwrite the return address with "CCCC"*2
 		for path in simgr.unconstrained:
 			#if path.satisfiable(extra_constraints=[path.regs.pc == b"CCCC"*2]): 
-			path.add_constraints(path.regs.pc == p64(0xcafebabe))
+			path.add_constraints(path.regs.pc == p64(function['system']))
 			if path.satisfiable():
 				# input_data = state.posix.stdin.load(0, state.posix.stdin.size) <-- to create a bitvector of the input size
 				simgr.stashes['bof'].append(path)
@@ -86,7 +86,7 @@ def prog_state(state):
 		 # do something to reach till the input function and check for buffer size
 		 # buffer_input_size > buffer_declared_size
 	else:
-		simgr.explore(step_func = find_bof)
+		simgr.explore(find = function['win'], step_func = find_bof)
 		if(simgr.stashes['bof'] != []):
 			print("[+] overflow detected")
 			print("[+] len of crashing input {}".format(len(crashing_input)))
@@ -100,8 +100,8 @@ def prog_state(state):
 
 
 findfunctions()
-if(not find_win(simgr)):
-	prog_state(state)
+prog_state(state)
+find_win(simgr)
 
 
 
