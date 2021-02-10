@@ -4,9 +4,9 @@ from pwn import *
 import claripy
 import angr
 
-proj = angr.Project("./bug",auto_load_libs=False)
+proj = angr.Project("./test_cases/bug1",auto_load_libs=False)
 state = proj.factory.entry_state(stdin=angr.SimFile)
-binary = ELF("bug")
+binary = ELF("./test_cases/bug1")
 function = {}
 properties = {}
 unconstrained_input = False
@@ -51,7 +51,8 @@ def find_win(simgr):
 	global win_addr
 	# finding win functions in the binary and trying to call it
 	# incomplete and failed implementation of the above
-	if ("system" in function):
+	if ("system" in function): 
+
 		win_addr = function["system"]
 		simgr.explore(find = win_addr)
 		if simgr.found:
@@ -79,14 +80,16 @@ def find_bof(simgr):
 			simgr.drop(stash='active')
 	return simgr	
 
+
 def prog_state(state):
 # additional condition for gets as it is undetected in the search for unconstrained path
 	if("gets" in function):
 		unconstrained_input = True
+		print("[+] gets found")
 		 # do something to reach till the input function and check for buffer size
 		 # buffer_input_size > buffer_declared_size
 	else:
-		simgr.explore(find = function['win'], step_func = find_bof)
+		simgr.explore(step_func = find_bof)
 		if(simgr.stashes['bof'] != []):
 			print("[+] overflow detected")
 			print("[+] len of crashing input {}".format(len(crashing_input)))
