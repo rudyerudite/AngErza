@@ -3,10 +3,12 @@
 from pwn import *
 import claripy
 import angr
+import sys
 
-proj = angr.Project("./test_cases/bug1",auto_load_libs=False)
+name =  sys.argv[1]
+proj = angr.Project(name,auto_load_libs=False)
 state = proj.factory.entry_state(stdin=angr.SimFile)
-binary = ELF("./test_cases/bug1")
+binary = ELF(name)
 function = {}
 properties = {}
 unconstrained_input = False
