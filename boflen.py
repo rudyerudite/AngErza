@@ -4,11 +4,14 @@ import re
 import angr
 import claripy
 
-input_functions = ["read","fgets","gets","scanf"]
+input_functions = ["read","fgets","gets","__isoc99_scanf"]
 binary =  sys.argv[1]
 function = {}
-
+overflow = 0
+size = 0
 def findfunctions(name):
+# reference: https://docs.angr.io/built-in-analyses/identifier
+# functionality to find the different libc functions in the code
 	proj = angr.Project(name,auto_load_libs=False)
 	state = proj.factory.entry_state(stdin=angr.SimFile)
 	id_ = proj.analyses.Identifier()
@@ -30,3 +33,29 @@ for fn in stdin_fns:
 	rdx = r.cmd('dr rdx')
 	rbp = r.cmd('dr rbp')
 	print(rdi,rsi,rdx,rbp)
+	if(fn=="fgets" or fn=="read"):
+		if(fn == "fgets"):
+			size = int(rbp,16)-int(rdi,16)
+			inpsize = int(rsi,16)
+		elif(fn == "read"):
+			size = int(rbp,16)-int(rsi,16)
+			inpsize = int(rdx,16)
+		if(size < inpsize ):
+			overflow = inpsize-size
+			lof.info("BOF found size: {}".format(overflow))
+	elif(fn=="gets"):
+		overflow = 256
+		log.info("[+] gets found")
+	elif(fn=="__isoc99_scanf"):
+		m = r.cmd('psz @rdi')
+		# doesn't check for %ms type args where m > size of the buf
+		if("%s" in m):
+			overflow = 256
+			log.info("[+] overflow in scanf found")
+
+return overflow 
+
+
+
+
+

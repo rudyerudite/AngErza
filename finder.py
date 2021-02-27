@@ -4,6 +4,7 @@ from pwn import *
 import claripy
 import angr
 import sys
+import boflen
 
 name =  sys.argv[1]
 proj = angr.Project(name,auto_load_libs=False)
@@ -38,15 +39,6 @@ def findmitigation():
 	properties['plt'] = binary.plt
 	properties['relro'] = binary.relro
 	return properties
-
-def findfunctions():
-# reference: https://docs.angr.io/built-in-analyses/identifier
-# functionality to find the different libc functions in the code
-	findmitigation()
-	id_ = proj.analyses.Identifier()
-	for fninfo in id_.func_info:
-		print(hex(fninfo.addr), fninfo.name)
-		function[fninfo.name] = fninfo.addr
 
 	
 def find_win(simgr):
@@ -102,6 +94,7 @@ def prog_state(state):
 				print("[+] canary detected")
 		else:
 			print("[+] no overflow detected")
+
 
 
 findfunctions()

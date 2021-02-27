@@ -5,6 +5,7 @@
 
 int main(int argc, char const *argv[])
 {
-	
+	char a[10];
+	scanf("%s",a);
 	return 0;
 }
