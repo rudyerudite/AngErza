@@ -7,7 +7,6 @@ import claripy
 input_functions = ["read","fgets","gets","__isoc99_scanf"]
 binary =  sys.argv[1]
 function = {}
-overflow = 0
 size_array = []
 size = 0
 def findfunctions(name):
@@ -22,6 +21,7 @@ def findfunctions(name):
 
 def stdin_fn():
 	local = []
+	overflow = 0
 	findfunctions(binary)
 	p = process(binary)
 	r = r2pipe.open(binary,flags = ["-d"])
@@ -52,11 +52,13 @@ def stdin_fn():
 				overflow = 0
 		elif(fn=="gets"):
 			overflow = 256
+			inpsize = 256
 			log.info("[+] gets found")
 		elif(fn=="__isoc99_scanf"):
 			m = r.cmd('psz @rdi')
 		# doesn't check for %ms type args where m > size of the buf
 			if("%s" in m):
+				inpsize = 256
 				overflow = 256
 				log.info("[+] overflow in scanf found")
 	
@@ -65,7 +67,7 @@ def stdin_fn():
 			size_array.append(overflow)
 			i+=1
 		overflow = 0
-
+	#local --> stack addr where bof is possible, size_array --> accounting for size of the overflows
 	return local,size_array
 #how to add a check to find if there's an internal buffer overflow; where we can overflow one buffer and then corrupt the nearby variables
 #can rbp corruption cause any issue?
