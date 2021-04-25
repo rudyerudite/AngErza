@@ -10,13 +10,24 @@ proj = angr.Project(name,auto_load_libs=False)
 state = proj.factory.entry_state(stdin=angr.SimFile)
 binary = ELF(name)
 function = {}
-properties = {}
+
 unconstrained_input = False
 len_unconstrained_input = -1
 simgr = proj.factory.simulation_manager(state,save_unconstrained=True)
 simgr.stashes['bof'] = []
+properties = {}
 crashing_input = ""
 win_addr = 0
+
+
+def findfunctions():
+# reference: https://docs.angr.io/built-in-analyses/identifier
+# functionality to find the different libc functions in the code
+	findmitigation()
+	id_ = proj.analyses.Identifier()
+	for fninfo in id_.func_info:
+		print(hex(fninfo.addr), fninfo.name)
+		function[fninfo.name] = fninfo.addr
 
 def findmitigation():
 	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
@@ -38,16 +49,6 @@ def findmitigation():
 	properties['plt'] = binary.plt
 	properties['relro'] = binary.relro
 	return properties
-
-def findfunctions():
-# reference: https://docs.angr.io/built-in-analyses/identifier
-# functionality to find the different libc functions in the code
-	findmitigation()
-	id_ = proj.analyses.Identifier()
-	for fninfo in id_.func_info:
-		print(hex(fninfo.addr), fninfo.name)
-		function[fninfo.name] = fninfo.addr
-
 	
 def find_win(simgr):
 	global win_addr

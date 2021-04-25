@@ -26,6 +26,7 @@ def stdin_fn():
 	p = process(binary)
 	r = r2pipe.open(binary,flags = ["-d"])
 	i = 0
+	inpsize = 0
 	stdin_fns = list((set(function.keys())).intersection(input_functions))
 	print(stdin_fns)
 	for fn in stdin_fns:
@@ -75,11 +76,3 @@ def stdin_fn():
 
 findfunctions(binary)
 stdin_fn()
-
-	
-
-
-
-
-
-
