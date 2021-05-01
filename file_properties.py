@@ -4,7 +4,7 @@ from pwn import *
 linking = ""
 arch = ""
 
-filename = "/home/b3y0nd3r/final-year-project/test_cases/bug1"
+filename = sys.argv[1]
 def check_elf(filename):
     f = open(filename,"rb")
     header = f.read(4)
@@ -22,7 +22,7 @@ def check_linking(filename):
         libc_path = input("Please enter the libc file path > ")
     elif(output == "statically linked"):
         linking = "static"
-    print(linking)
+    print(output)
     return linking
 
 def check_arch(filename):
@@ -34,7 +34,7 @@ def check_arch(filename):
         arch = "64"
     elif(output == "ELF 64-bit LSB executable"):
         arch = "32"
-    print(arch)
+    print(output)
     return arch
 
 check_elf(filename)
