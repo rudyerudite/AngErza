@@ -4,22 +4,63 @@ import re
 import angr
 import claripy
 
-input_functions = ["read","fgets","gets","__isoc99_scanf"]
-binary =  sys.argv[1]
 function = {}
-size_array = []
-size = 0
+
+def findmitigation(binary,properties):
+	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
+	# other trials. 
+	# not sure if the function is really required because any value can be accessed using binary.smth
+	# might be required when splitting the code into multiple python files
+	'''
+	if(proj.loader.main_object.execstack== True):
+		print("NX is enabled")
+	elif(proj.loader.main_object.pic == True):
+		print("PIE is enabled")
+	'''
+	binary = ELF(binary)
+	properties['aslr'] = binary.aslr
+	properties['arch'] = binary.arch
+	properties['canary'] = binary.canary
+	properties['got'] = binary.got
+	properties['nx'] = binary.nx
+	properties['pie'] = binary.pie
+	properties['plt'] = binary.plt
+	properties['relro'] = binary.relro
+
+	return properties
+
 def findfunctions(name):
 # reference: https://docs.angr.io/built-in-analyses/identifier
 # functionality to find the different libc functions in the code
+	global function
 	proj = angr.Project(name,auto_load_libs=False)
 	state = proj.factory.entry_state(stdin=angr.SimFile)
 	id_ = proj.analyses.Identifier()
 	for fninfo in id_.func_info:
 		print(hex(fninfo.addr), fninfo.name)
 		function[fninfo.name] = fninfo.addr
+	return function
 
-def stdin_fn():
+def find_win(simgr):
+	# finding win functions in the binary and trying to call it
+	# incomplete and failed implementation of the above
+	win_addr = 0x0000
+	if ("system" in function): 
+
+		win_addr = function["system"]
+		simgr.explore(find = win_addr)
+		if simgr.found:
+			sol = simgr.found[0]
+			print(sol.posix.dumps(0))
+	return win_addr
+
+def stdin_fn(binary):
+	function = findfunctions(binary)
+	input_functions = ["read","fgets","gets","__isoc99_scanf"]
+	
+	size_array = []
+	size = 0
+
 	local = []
 	overflow = 0
 	findfunctions(binary)
@@ -75,6 +116,3 @@ def stdin_fn():
 #using radare to see which all local variables are declared and then finding their size
 #r.cmd('aa')
 #print(r.cmd('afvd'))
-
-findfunctions(binary)
-stdin_fn()

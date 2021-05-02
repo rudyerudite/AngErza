@@ -1,16 +1,13 @@
 import subprocess
 from pwn import *
 
-linking = ""
-arch = ""
-
-filename = sys.argv[1]
 def check_elf(filename):
     f = open(filename,"rb")
     header = f.read(4)
     if(header == b'\x7fELF'):
         print("ELF file detected.")
     else:
+        print("Please give a ELF file")
         exit(0)
 
 def check_linking(filename):
@@ -37,6 +34,13 @@ def check_arch(filename):
     print(output)
     return arch
 
-check_elf(filename)
-check_linking(filename)
-check_arch(filename)
+def file_parser(filename):
+    properties = {}
+    properties['file'] = check_elf(filename)
+    properties['link'] = check_linking(filename)
+    properties['arch'] = check_arch(filename)
+
+    return properties
+
+
+

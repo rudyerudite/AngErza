@@ -29,26 +29,7 @@ def findfunctions():
 		print(hex(fninfo.addr), fninfo.name)
 		function[fninfo.name] = fninfo.addr
 
-def findmitigation():
-	# reference: https://github.com/ChrisTheCoolHut/Zeratool/blob/master/lib/protectionDetector.py
-	# other trials. 
-	# not sure if the function is really required because any value can be accessed using binary.smth
-	# might be required when splitting the code into multiple python files
-	'''
-	if(proj.loader.main_object.execstack== True):
-		print("NX is enabled")
-	elif(proj.loader.main_object.pic == True):
-		print("PIE is enabled")
-	'''
-	properties['aslr'] = binary.aslr
-	properties['arch'] = binary.arch
-	properties['canary'] = binary.canary
-	properties['got'] = binary.got
-	properties['nx'] = binary.nx
-	properties['pie'] = binary.pie
-	properties['plt'] = binary.plt
-	properties['relro'] = binary.relro
-	return properties
+
 	
 def find_win(simgr):
 	global win_addr
