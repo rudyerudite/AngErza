@@ -46,12 +46,14 @@ def find_win(simgr):
 	# incomplete and failed implementation of the above
 	win_addr = 0x0000
 	if ("system" in function): 
-
 		win_addr = function["system"]
 		simgr.explore(find = win_addr)
 		if simgr.found:
 			sol = simgr.found[0]
 			print(sol.posix.dumps(0))
+			print("woooooooooooooooooooooooooooooooooooooooooooooooooooow")
+		else:
+			print("noooooooooooooooooooooooooooooooooo")
 	return win_addr
 
 def stdin_fn(binary):
@@ -69,7 +71,7 @@ def stdin_fn(binary):
 	i = 0
 	inpsize = 0
 	stdin_fns = list((set(function.keys())).intersection(input_functions))
-	print(stdin_fns)
+	#print(stdin_fns)
 	for fn in stdin_fns:
 		log.info("Continuing until {}".format(hex(function[fn])))
 		r.cmd('db {}'.format(hex(function[fn])))
@@ -93,6 +95,7 @@ def stdin_fn(binary):
 			else:
 				overflow = 0
 		elif(fn=="gets"):
+			size = int(rbp,16)-int(rdi,16)
 			overflow = 256
 			inpsize = 256
 			log.info("[+] gets found")
@@ -110,7 +113,7 @@ def stdin_fn(binary):
 			i+=1
 		overflow = 0
 	#local --> stack addr where bof is possible, size_array --> accounting for size of the overflows
-	return local,size_array
+	return local,size_array,size
 #how to add a check to find if there's an internal buffer overflow; where we can overflow one buffer and then corrupt the nearby variables
 #can rbp corruption cause any issue?
 #using radare to see which all local variables are declared and then finding their size
