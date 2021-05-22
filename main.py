@@ -11,7 +11,11 @@ simgr = proj.factory.simulation_manager(state,save_unconstrained=True)
 #simgr.stashes['bof'] = []
 properties = file_properties.file_parser(binary)
 local, size_array, size = boflen.stdin_fn(binary)
-boflen.findmitigation(binary,properties)
+properties = boflen.findmitigation(binary,properties)
+print(properties['nx'])
 #win_addr = boflen.find_win(simgr)
-exploitgen.find_win_rop(size)
+if(size_array[0] == 0 and [properties['nx']] == 1):
+    shellcode_detect.give_shell(size)
+else:
+    exploitgen.find_win_rop(size)
 
