@@ -17,5 +17,7 @@ print(properties['nx'])
 if(size_array[0] == 0 and [properties['nx']] == 1):
     shellcode_detect.give_shell(size)
 else:
-    exploitgen.find_win_rop(size)
+    k = exploitgen.find_win_rop(size)
+    if( k == ""):
+        exploitgen.find_rop(size)
 
