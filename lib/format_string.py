@@ -23,7 +23,10 @@ def format_string_detect(binary,function):
 		rdx = r.cmd('dr rdx')
 		rbp = r.cmd('dr rbp')
 		print(rdi,rsi,rdx,rbp)
-		print(r.cmd('drr~rdi'))
-
+		output = r.cmd('drr~rdi')
+		if("stack R W" in output):
+			return True
+		else:
+			return False
 	#local --> stack addr where bof is possible, size_array --> accounting for size of the overflows
 	return 
