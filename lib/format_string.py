@@ -3,19 +3,6 @@ import r2pipe
 import angr
 import claripy
 
-def findfunctions(name):
-# reference: https://docs.angr.io/built-in-analyses/identifier
-# functionality to find the different libc functions in the code
-	function = {}
-	proj = angr.Project(name,auto_load_libs=False)
-	state = proj.factory.entry_state(stdin=angr.SimFile)
-	id_ = proj.analyses.Identifier()
-	for fninfo in id_.func_info:
-		print(hex(fninfo.addr), fninfo.name)
-		function[fninfo.name] = fninfo.addr
-	return function
-
-
 def format_string_detect(binary,function):
 	output_functions = ["printf"]
 	
@@ -40,10 +27,3 @@ def format_string_detect(binary,function):
 
 	#local --> stack addr where bof is possible, size_array --> accounting for size of the overflows
 	return 
-name = sys.argv[1]
-proj = angr.Project(name,auto_load_libs=False)
-state = proj.factory.entry_state(stdin=angr.SimFile)
-simgr = proj.factory.simulation_manager(state,save_unconstrained=True)
- 
-function = findfunctions(name)
-format_string_detect(name,function)
