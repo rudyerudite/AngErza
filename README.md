@@ -12,15 +12,15 @@ This is a CTF-helper or a program checking (for vulns) tool done as a college pr
 
 ## 2. Working:
 
-<p align="center">
+<p style="background-color:white;" align="center">
 <img src="diag/block-diag.png" alt="Overall working" />
 </p>
 
-<p align="center">
+<p style="background-color:white;" align="center">
 <img src="diag/bof-detect.png" alt="Detecting bug in binary" />
 </p>
 
-<p align="center">
+<p style="background-color:white;" align="center">
 <img src="diag/Exploitgen.png" alt="Generation of Exploit" />
 </p>
 
