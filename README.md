@@ -11,17 +11,20 @@ This is a CTF-helper or a program checking (for vulns) tool done as a college pr
 - pwntools, pyelftools
 
 ## 2. Working:
+img {
+  max-width: 50%;
+}
 
 <p  align="center">
-<img src="diag/block-diag.png" style="background-color:red;" alt="Overall working" />
+<img src="diag/block-diag.png" style="background-color:red;padding:20px;" alt="Overall working" />
 </p>
 
 <p align="center">
-<img src="diag/bof-detect.png" style="background-color:red;" alt="Detecting bug in binary" />
+<img src="diag/bof-detect.png" style="background-color:red;padding:20px;" alt="Detecting bug in binary" />
 </p>
 
 <p  align="center">
-<img src="diag/Exploitgen.png" style="background-color:red;" alt="Generation of Exploit" />
+<img src="diag/Exploitgen.png" style="background-color:red;padding:20px;" alt="Generation of Exploit" />
 </p>
 
 - main.py --> the main worker script of the tool
