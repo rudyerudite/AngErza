@@ -13,15 +13,15 @@ This is a CTF-helper or a program checking (for vulns) tool done as a college pr
 ## 2. Working:
 
 <p  align="center">
-<img src="diag/block-diag.png" style="background-color:white;" alt="Overall working" />
+<img src="diag/block-diag.png" style="background-color:red;" alt="Overall working" />
 </p>
 
 <p align="center">
-<img src="diag/bof-detect.png" style="background-color:white;" alt="Detecting bug in binary" />
+<img src="diag/bof-detect.png" style="background-color:red;" alt="Detecting bug in binary" />
 </p>
 
 <p  align="center">
-<img src="diag/Exploitgen.png" style="background-color:white;" alt="Generation of Exploit" />
+<img src="diag/Exploitgen.png" style="background-color:red;" alt="Generation of Exploit" />
 </p>
 
 - main.py --> the main worker script of the tool
