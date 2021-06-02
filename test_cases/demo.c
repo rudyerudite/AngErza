@@ -37,8 +37,8 @@ void sys_call()
 
 int main()
 {
-	char buf[10];
+	char buf[16];
 	printf("Let's do it!");
-	gets(buf);
+	read(0,buf,80);
 	return 0;
 }
